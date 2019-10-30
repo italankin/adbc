@@ -1,11 +1,11 @@
 # adbc
 
-adbc is an ADB facade which shows a device selection dialog, if multiple Android devices are connected.
+`adbc` is an ADB facade which shows a device selection dialog, if multiple Android devices are connected.
 
 # Usage
 
 ```sh
-$ adbc <command>
+$ adbc <adb command>
 ```
 
 If there are multiple connected Android devices, the select dialog will be shown.
@@ -18,7 +18,7 @@ With no arguments `adbc` will print selected device id. It can be used by script
 
 # Building
 
-adbc requires `ncurses` library.
+`adbc` requires `ncurses` library.
 
 A binary is build with this command:
 
