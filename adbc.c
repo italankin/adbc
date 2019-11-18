@@ -4,6 +4,7 @@
 #include <ncurses.h>
 
 #define MAX_LINE_LEN 512
+#define ADB_LOCATION "/platform-tools/adb"
 
 struct device {
     char* id;
@@ -15,12 +16,19 @@ struct device_list {
     int count;
 };
 
+char* ADB = NULL;
+
+char* get_sdk_path();
+void read_adb_path();
+char* get_adb_command(char* command);
 struct device parse_device(char* s);
 struct device_list get_devices();
 struct device* select_device(struct device_list devices);
 int exec_command(char* id, int argc, char* argv[]);
 
 int main(int argc, char* argv[]) {
+    read_adb_path();
+
     struct device_list devices = get_devices();
 
     if (devices.count == 0) {
@@ -36,6 +44,40 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
     return exec_command(chosen->id, argc, argv);
+}
+
+char* get_sdk_path() {
+    char* android_home = getenv("ANDROID_HOME");
+    if (android_home != NULL && strlen(android_home) > 0) {
+        return android_home;
+    }  
+    char* android_sdk_root = getenv("ANDROID_SDK_ROOT");
+    if (android_sdk_root != NULL && strlen(android_sdk_root) > 0) {
+        return android_sdk_root;
+    }
+    return NULL;
+}
+
+void read_adb_path() {
+    char* sdk = get_sdk_path();
+    if (sdk != NULL && strlen(sdk) > 0) {
+        ADB = malloc(strlen(sdk) + strlen(ADB_LOCATION) + 1);
+        ADB[0] = '\0';
+        strcat(ADB, sdk);
+        strcat(ADB, ADB_LOCATION);
+    } else {
+        // hope we have adb available in PATH
+        ADB = "adb";
+    }
+}
+
+char* get_adb_command(char* command) {
+    char* result = malloc(strlen(ADB) + strlen(command) + 2);
+    result[0] = '\0';
+    strcat(result, ADB);
+    strcat(result, " ");
+    strcat(result, command);
+    return result;
 }
 
 struct device parse_device(char* s) {
@@ -54,7 +96,7 @@ struct device parse_device(char* s) {
 }
 
 struct device_list get_devices() {
-    char command[] = "adb devices";
+    char* command = get_adb_command("devices");
     FILE* fp = popen(command, "r");
     if (fp == NULL) {
         fprintf(stderr, "error while executing command '%s'\n", command);
@@ -78,7 +120,10 @@ struct device_list get_devices() {
         }
         devices[device_count++] = d;
     }
-    fclose(fp);
+    int ret = pclose(fp);
+    if (ret != 0) {
+        exit(1);
+    }
 
     struct device_list result = { devices, device_count };
     return result;
@@ -120,7 +165,7 @@ int exec_command(char* id, int argc, char* argv[]) {
         return 0;
     }
 
-    char* prefix = "adb -s ";
+    char* prefix = "-s ";
     // count length of the resulting command
     int len = strlen(prefix) + strlen(id); // no +1 for space after id, because it will be added in a loop
     for (int i = 1; i < argc; i++) {
@@ -135,5 +180,5 @@ int exec_command(char* id, int argc, char* argv[]) {
         strcat(command, " ");
         strcat(command, argv[i]);
     }
-    return system(command);
+    return system(get_adb_command(command));
 }

@@ -2,6 +2,9 @@
 
 `adbc` is an ADB facade which shows a device selection dialog, if multiple Android devices are connected.
 
+To find a path to `adb` executable `adbc` uses `ANDROID_HOME` or `ANDROID_SDK_ROOT` environment variables.
+If none of the above is defined, `adbc` will assume `adb` is available via `PATH`.
+
 # Usage
 
 ```sh
