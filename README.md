@@ -10,8 +10,13 @@ If none of the above is defined, `adbc` will assume `adb` is available via `PATH
 ## Running a command
 
 ```sh
-# adbc <adb command>, for example:
-$ adbc shell
+$ adbc <adb command>
+```
+
+For example:
+
+```sh
+$ adbc shell dumpsys activity | grep mResumed
 ```
 
 If there are multiple connected Android devices, the select dialog will be shown:
@@ -42,7 +47,7 @@ $ adb -s $SELECTED_DEVICE shell input keyevent ENTER
 
 `adbc` requires `ncurses` library.
 
-A binary is build with this command:
+A binary can be built with this command:
 
 ```sh
 $ gcc adbc.c -lncurses -o adbc
