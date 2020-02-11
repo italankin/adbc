@@ -43,6 +43,19 @@ $ adb -s $SELECTED_DEVICE shell input text password
 $ adb -s $SELECTED_DEVICE shell input keyevent ENTER
 ```
 
+## Print version
+
+Run `adbc` with `--adbc-version` option:
+
+```sh
+$ adbc --adbc-version
+adbc version: 1.0.0
+Using adb path: /home/user/android-sdk/platform-tools/adb
+Android Debug Bridge version 1.0.41
+Version 29.0.5-5949299
+Installed as /home/user/android-sdk/platform-tools/adb
+```
+
 # Building
 
 `adbc` requires `ncurses` library.

@@ -3,6 +3,8 @@
 #include <string.h>
 #include <ncurses.h>
 
+#define VERSION "1.0.0"
+
 #define MAX_LINE_LEN 512
 #define ADB_LOCATION "/platform-tools/adb"
 
@@ -19,6 +21,7 @@ struct device_list {
 
 char* ADB = NULL;
 
+int print_version();
 char* get_sdk_path();
 void read_adb_path();
 char* get_adb_command(char* command);
@@ -29,6 +32,10 @@ int exec_command(char* id, int argc, char* argv[]);
 
 int main(int argc, char* argv[]) {
     read_adb_path();
+
+    if (argc == 2 && strcmp(argv[1], "--adbc-version") == 0) {
+        return print_version();
+    }
 
     struct device_list devices = get_devices();
 
@@ -45,6 +52,18 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
     return exec_command(chosen->id, argc, argv);
+}
+
+int print_version() {
+    printf("adbc version: %s\n", VERSION);
+    if (strcmp(ADB, "adb") == 0) {
+        printf("Android SDK not found\n");
+        return 1;
+    } else {
+        printf("Using adb path: %s\n", ADB);
+        char* adb_version = get_adb_command("--version");
+        return system(adb_version);
+    }
 }
 
 char* get_sdk_path() {
