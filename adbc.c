@@ -9,6 +9,7 @@
 struct device {
     char* id;
     char* state;
+    char* model;
 };
 
 struct device_list {
@@ -81,22 +82,33 @@ char* get_adb_command(char* command) {
 }
 
 struct device parse_device(char* s) {
+    struct device d = {};
+
     // get device id
-    char* token = strtok(s, "\t");
-    char* id = malloc(strlen(token) + 1);
-    strncpy(id, token, strlen(token));
+    char* token = strtok(s, " ");
+    d.id = malloc(strlen(token) + 1);
+    strncpy(d.id, token, strlen(token));
 
     // get device state
-    token = strtok(NULL, "\n");
-    char* state = malloc(strlen(token) + 1);
-    strncpy(state, token, strlen(token));
+    token = strtok(NULL, " ");
+    d.state = malloc(strlen(token) + 1);
+    strncpy(d.state, token, strlen(token));
 
-    struct device d = { id, state };
+    while ((token = strtok(NULL, " ")) != NULL) {
+        // get device model
+        if (strncmp(token, "model:", 6) == 0) {
+            int model_len = strlen(token) - 6;
+            d.model = malloc(model_len + 1);
+            strncpy(d.model, token + 6, model_len);
+            break;
+        }
+    }
+
     return d;
 }
 
 struct device_list get_devices() {
-    char* command = get_adb_command("devices");
+    char* command = get_adb_command("devices -l");
     FILE* fp = popen(command, "r");
     if (fp == NULL) {
         fprintf(stderr, "error while executing command '%s'\n", command);
@@ -137,7 +149,8 @@ struct device* select_device(struct device_list devices) {
     noecho();
     printw("select a device:\n");
     for(int i = 0; i < devices.count; i++) {
-        printw("  %d: %s\t%s\n", i + 1, devices.list[i].id, devices.list[i].state);
+        struct device d = devices.list[i];
+        printw("  %d: %s\t%s\t%s\n", i + 1, d.id, d.state, d.model);
     }
     printw("  q: quit\n");
     refresh();
