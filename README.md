@@ -49,7 +49,7 @@ Run `adbc` with `--adbc-version` option:
 
 ```sh
 $ adbc --adbc-version
-adbc version: 1.0.0
+adbc version: 1.0.1
 Using adb path: /home/user/android-sdk/platform-tools/adb
 Android Debug Bridge version 1.0.41
 Version 29.0.5-5949299

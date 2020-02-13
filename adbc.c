@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ncurses.h>
 
-#define VERSION "1.0.0"
+#define VERSION "1.0.1"
 
 #define MAX_LINE_LEN 512
 #define ADB_LOCATION "/platform-tools/adb"
