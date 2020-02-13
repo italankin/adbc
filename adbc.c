@@ -7,6 +7,7 @@
 
 #define MAX_LINE_LEN 512
 #define ADB_LOCATION "/platform-tools/adb"
+#define ESCAPE_CHARS "\\\'\"()`${}?*%;~#&|[]><"
 
 struct device {
     char* id;
@@ -29,6 +30,7 @@ struct device parse_device(char* s);
 struct device_list get_devices();
 struct device* select_device(struct device_list devices);
 int exec_command(char* id, int argc, char* argv[]);
+char* escape_command(char* command);
 
 int main(int argc, char* argv[]) {
     read_adb_path();
@@ -92,11 +94,12 @@ void read_adb_path() {
 }
 
 char* get_adb_command(char* command) {
-    char* result = malloc(strlen(ADB) + strlen(command) + 2);
+    char* escaped = escape_command(command);
+    char* result = malloc(strlen(ADB) + strlen(escaped) + 2);
     result[0] = '\0';
     strcat(result, ADB);
     strcat(result, " ");
-    strcat(result, command);
+    strcat(result, escaped);
     return result;
 }
 
@@ -213,4 +216,26 @@ int exec_command(char* id, int argc, char* argv[]) {
         strcat(command, argv[i]);
     }
     return system(get_adb_command(command));
+}
+
+char* escape_command(char* command) {
+    int len = strlen(command);
+    char* escaped = malloc(len * 2);
+    int p = 0;
+    for(int i = 0; i < len; i++) {
+        char ch = command[i];
+        if (strchr(ESCAPE_CHARS, ch) != NULL) {
+            escaped[p++] = '\\';
+            escaped[p++] = ch;
+        } else {
+            escaped[p++] = ch;
+        }
+    }
+    char* result = malloc(p + 1);
+    for(int i = 0; i < p; i++) {
+        result[i] = escaped[i];
+    }
+    free(escaped);
+    result[p] = '\0';
+    return result;
 }
