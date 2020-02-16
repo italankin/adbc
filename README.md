@@ -56,12 +56,3 @@ Version 29.0.5-5949299
 Installed as /home/user/android-sdk/platform-tools/adb
 ```
 
-# Building
-
-`adbc` requires `ncurses` library.
-
-A binary can be built with this command:
-
-```sh
-$ gcc adbc.c -lncurses -o adbc
-```
