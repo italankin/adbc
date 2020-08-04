@@ -56,3 +56,19 @@ Version 29.0.5-5949299
 Installed as /home/user/android-sdk/platform-tools/adb
 ```
 
+# Building
+
+## Requirements
+
+* gcc
+* ncurses
+
+## Building executable
+
+An executable can be built with this command:
+
+```sh
+$ make adbc
+```
+
+The executable will be created at `./build/adbc`.
