@@ -2,12 +2,29 @@ name: C/C++ CI
 
 on:
   push:
-    branches: test
+    tags:
+      - '*'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  release_binary:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_suffix: linux
+          - os: macos-latest
+            artifact_suffix: macos
     steps:
     - uses: actions/checkout@v2
     - name: make
       run: make
+    - name: rename
+      run: mv 'build/adbc' 'build/adbc-${{ matrix.artifact_suffix }}'
+    - name: release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        artifacts: 'build/*'
+        token: ${{ secrets.GITHUB_TOKEN }}
