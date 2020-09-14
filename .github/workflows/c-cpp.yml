@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: create release
 
 on:
   push:
@@ -13,18 +13,21 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            artifact_suffix: linux
+            suffix: linux
           - os: macos-latest
-            artifact_suffix: macos
+            suffix: macos
     steps:
     - uses: actions/checkout@v2
     - name: make
       run: make
-    - name: rename
-      run: mv 'build/adbc' 'build/adbc-${{ matrix.artifact_suffix }}'
+    - name: current tag
+      id: current_tag
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+    - name: package
+      run: tar -czvf adbc-${{ matrix.suffix }}-${{ steps.current_tag.outputs.tag }}.tar.gz -C build adbc
     - name: release
       uses: ncipollo/release-action@v1
       with:
-        allowUpdates: true
-        artifacts: 'build/*'
+        artifacts: '*.tar.gz'
         token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: true
