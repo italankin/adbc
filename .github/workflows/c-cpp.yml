@@ -2,8 +2,7 @@ name: C/C++ CI
 
 on:
   push:
-    tags:
-      - '*'
+    branches: test
 
 jobs:
   build:
