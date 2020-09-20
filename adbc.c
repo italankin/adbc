@@ -72,7 +72,7 @@ char* get_sdk_path() {
     char* android_home = getenv("ANDROID_HOME");
     if (android_home != NULL && strlen(android_home) > 0) {
         return android_home;
-    }  
+    }
     char* android_sdk_root = getenv("ANDROID_SDK_ROOT");
     if (android_sdk_root != NULL && strlen(android_sdk_root) > 0) {
         return android_sdk_root;
