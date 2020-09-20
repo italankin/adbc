@@ -83,6 +83,9 @@ char* get_sdk_path() {
 void read_adb_path() {
     char* sdk = get_sdk_path();
     if (sdk != NULL && strlen(sdk) > 0) {
+        if (sdk[strlen(sdk) - 1] == '/') {
+            sdk[strlen(sdk) - 1] = '\0';
+        }
         ADB = malloc(strlen(sdk) + strlen(ADB_LOCATION) + 1);
         ADB[0] = '\0';
         strcat(ADB, sdk);
