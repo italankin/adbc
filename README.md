@@ -43,6 +43,13 @@ $ adb -s $SELECTED_DEVICE shell input text password
 $ adb -s $SELECTED_DEVICE shell input keyevent ENTER
 ```
 
+You can also use `ANDROID_SERIAL` variable:
+
+```sh
+$ export ANDROID_SERIAL=`adbc`
+$ adb shell  # will be executed on the selected device
+```
+
 ## Print version
 
 Run `adbc` with `--adbc-version` option:
