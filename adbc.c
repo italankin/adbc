@@ -21,7 +21,20 @@ struct device_list {
 };
 
 char* ADB = NULL;
+char* SKIP_DEVICE_SELECT[] = {
+    "--help",
+    "devices",
+    "help",
+    "version",
+    "kill-server",
+    "start-server",
+    "connect",
+    "disconnect",
+    "pair",
+    "mdns"
+};
 
+int skip_device_select(int argc, char* argv[]);
 int print_version();
 char* get_sdk_path();
 void read_adb_path();
@@ -39,6 +52,10 @@ int main(int argc, char* argv[]) {
         return print_version();
     }
 
+    if (skip_device_select(argc, argv)) {
+        return exec_command(NULL, argc, argv);
+    }
+
     struct device_list devices = get_devices();
 
     if (devices.count == 0) {
@@ -54,6 +71,20 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
     return exec_command(chosen->id, argc, argv);
+}
+
+int skip_device_select(int argc, char* argv[]) {
+    if (argc < 2) {
+        return false;
+    }
+    char* command = argv[1];
+    size_t length = sizeof(SKIP_DEVICE_SELECT) / sizeof(char*);
+    for(int i = 0; i < length; i++) {
+        if (strcmp(command, SKIP_DEVICE_SELECT[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int print_version() {
@@ -197,7 +228,7 @@ struct device* select_device(struct device_list devices) {
     execute a given command with selected id, or just print selected id
 */
 int exec_command(char* id, int argc, char* argv[]) {
-    if (argc < 2) {
+    if (argc < 2 && id != NULL) {
         // no additional arguments: just print selected device id
         printf("%s\n", id);
         return 0;
@@ -205,15 +236,20 @@ int exec_command(char* id, int argc, char* argv[]) {
 
     char* prefix = "-s ";
     // count length of the resulting command
-    int len = strlen(prefix) + strlen(id); // no +1 for space after id, because it will be added in a loop
+    int len = 0;
+    if (id != NULL) {
+        len += strlen(prefix) + strlen(id); // no +1 for space after id, because it will be added in a loop
+    }
     for (int i = 1; i < argc; i++) {
         len += strlen(argv[i]) + 1;
     }
 
     char* command = malloc(len + 1); // +1 for null char
     command[0] = '\0';
-    strcat(command, prefix);
-    strcat(command, id);
+    if (id != NULL) {
+        strcat(command, prefix);
+        strcat(command, id);
+    }
     for(int i = 1; i < argc; i++) {
         strcat(command, " ");
         strcat(command, argv[i]);
