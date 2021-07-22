@@ -7,7 +7,7 @@
 
 #define MAX_LINE_LEN 512
 #define ADB_LOCATION "/platform-tools/adb"
-#define ESCAPE_CHARS "\\\'\"()`${}?*%;~#&|[]><"
+#define ESCAPE_CHARS "\\\'\"()`${}?*%;~#&|[]>< "
 
 struct device {
     char* id;
@@ -43,7 +43,8 @@ struct device parse_device(char* s);
 struct device_list get_devices();
 struct device* select_device(struct device_list devices);
 int exec_command(char* id, int argc, char* argv[]);
-char* escape_command(char* command);
+int escaped_length(char* str);
+char* escape_string(char* command);
 
 int main(int argc, char* argv[]) {
     read_adb_path();
@@ -128,12 +129,11 @@ void read_adb_path() {
 }
 
 char* get_adb_command(char* command) {
-    char* escaped = escape_command(command);
-    char* result = malloc(strlen(ADB) + strlen(escaped) + 2);
+    char* result = malloc(strlen(ADB) + strlen(command) + 2);
     result[0] = '\0';
     strcat(result, ADB);
     strcat(result, " ");
-    strcat(result, escaped);
+    strcat(result, command);
     return result;
 }
 
@@ -241,7 +241,7 @@ int exec_command(char* id, int argc, char* argv[]) {
         len += strlen(prefix) + strlen(id); // no +1 for space after id, because it will be added in a loop
     }
     for (int i = 1; i < argc; i++) {
-        len += strlen(argv[i]) + 1;
+        len += escaped_length(argv[i]) + 1;
     }
 
     char* command = malloc(len + 1); // +1 for null char
@@ -252,17 +252,28 @@ int exec_command(char* id, int argc, char* argv[]) {
     }
     for(int i = 1; i < argc; i++) {
         strcat(command, " ");
-        strcat(command, argv[i]);
+        strcat(command, escape_string(argv[i]));
     }
     return system(get_adb_command(command));
 }
 
-char* escape_command(char* command) {
-    int len = strlen(command);
+int escaped_length(char* str) {
+    int len = strlen(str);
+    int new_len = len;
+    for(int i = 0; i < len; i++) {
+        if (strchr(ESCAPE_CHARS, str[i]) != NULL) {
+            new_len++;
+        }
+    }
+    return new_len;
+}
+
+char* escape_string(char* str) {
+    int len = strlen(str);
     char* escaped = malloc(len * 2);
     int p = 0;
     for(int i = 0; i < len; i++) {
-        char ch = command[i];
+        char ch = str[i];
         if (strchr(ESCAPE_CHARS, ch) != NULL) {
             escaped[p++] = '\\';
             escaped[p++] = ch;
