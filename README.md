@@ -1,4 +1,4 @@
-# adbc
+# adbc [![GitHub release (latest by date)](https://img.shields.io/github/v/release/italankin/adbc)](https://github.com/italankin/adbc/releases/latest)
 
 `adbc` is an ADB facade which shows a device selection dialog, if multiple Android devices are connected.
 
