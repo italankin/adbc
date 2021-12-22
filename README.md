@@ -65,7 +65,7 @@ Installed as /home/user/android-sdk/platform-tools/adb
 
 # Downloads
 
-MacOS and Linux binaries are available. See [releases](https://github.com/italankin/adbc/releases/latest).
+MacOS (unsigned) and Linux binaries are available. See [releases](https://github.com/italankin/adbc/releases/latest).
 
 # Building
 
